@@ -16,6 +16,23 @@ class _LoginScreenState extends State<LoginScreen> {
   String password = '';
   bool progress = false;
   final _auth = FirebaseAuth.instance;
+  Icon passwordVisibility = KEyeClose;
+  Icon visibilityOff = KEyeClose;
+  Icon visibilityOnn = KEyeOpen;
+  bool hidePassword = true;
+
+  void togglePassword() {
+    setState(() {
+      if (hidePassword == true) {
+        hidePassword = false;
+        passwordVisibility = visibilityOnn;
+      } else {
+        hidePassword = true;
+        passwordVisibility = visibilityOff;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,16 +73,24 @@ class _LoginScreenState extends State<LoginScreen> {
                 padding: const EdgeInsets.all(20),
                 child: TextFormField(
                   style: KTextFieldTextStyle,
+                  decoration: KTextFieldDecoration.copyWith(
+                    hintText: 'Enter your password',
+                    prefixIcon: const Icon(Icons.lock_clock_outlined),
+                    suffixIcon: InkWell(
+                      child: passwordVisibility,
+                      onTap: () {
+                        setState(() {
+                          togglePassword();
+                        });
+                      },
+                    ),
+                  ),
                   onChanged: (value) {
                     setState(() {
                       password = value;
                     });
                   },
-                  obscureText: true,
-                  decoration: KTextFieldDecoration.copyWith(
-                    hintText: 'Enter your password',
-                    prefixIcon: const Icon(Icons.lock_clock_outlined),
-                  ),
+                  obscureText: hidePassword,
                 ),
               ),
               StyledButtons(
@@ -97,4 +122,11 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
+
+String? validateEmail(String? formEmail) {
+  if (formEmail != null || formEmail!.endsWith('.com')) {
+    return 'E-mail address is required';
+  }
+  return null;
 }

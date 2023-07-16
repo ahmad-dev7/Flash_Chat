@@ -2,6 +2,7 @@ import 'package:flash_chat_app/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -30,7 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
         loggedInUser = user;
       }
     } catch (e) {
-      print(e);
+      debugPrint('$e');
     }
   }
 
@@ -40,13 +41,41 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Scaffold(
         backgroundColor: const Color(0xff0e1621),
         appBar: AppBar(
-          centerTitle: true,
-          backgroundColor: const Color(0xff1f2936),
-          leading: IconButton(
+          automaticallyImplyLeading: false,
+          actions: [
+            IconButton(
+              splashColor: Colors.redAccent,
               onPressed: () {
-                Navigator.pop(context);
+                Alert(
+                  style: KAlertStyle,
+                  context: context,
+                  title: 'Are you sure!',
+                  desc: 'You want to logout?',
+                  buttons: [
+                    DialogButton(
+                      color: Colors.blueGrey,
+                      child: Text('Cancel', style: KAlertButtonTextStyle),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    DialogButton(
+                      color: Colors.red[700],
+                      child: Text('Logout', style: KAlertButtonTextStyle),
+                      onPressed: () {
+                        setState(() {
+                          _auth.signOut();
+                          Navigator.pushNamed(context, '/');
+                        });
+                      },
+                    )
+                  ],
+                ).show();
               },
-              icon: const Icon(Icons.arrow_back_ios)),
+              icon: const Icon(Icons.logout),
+            )
+          ],
+          backgroundColor: const Color(0xff1f2936),
           title: const Text('⚡Flash Chat'),
         ),
         body: SafeArea(
@@ -169,10 +198,11 @@ class MessageBubble extends StatelessWidget {
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
         children: [
-          Text(
-            loggedInUser == sender ? 'You' : sender,
-            style: const TextStyle(color: Colors.grey, fontSize: 14),
-          ),
+          if (loggedInUser != sender)
+            Text(
+              sender,
+              style: const TextStyle(color: Colors.grey, fontSize: 14),
+            ),
           Material(
             elevation: 10,
             color: loggedInUser == sender
