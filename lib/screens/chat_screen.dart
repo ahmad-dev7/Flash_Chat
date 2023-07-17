@@ -65,7 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       onPressed: () {
                         setState(() {
                           _auth.signOut();
-                          Navigator.pushNamed(context, '/');
+                          Navigator.pushReplacementNamed(context, '/');
                         });
                       },
                     )
@@ -91,8 +91,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return const Center(
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.blueAccent,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            backgroundColor: Colors.blueAccent,
+                            semanticsLabel: 'Loading Chats...',
+                          ),
+                        ],
                       ),
                     );
                   }

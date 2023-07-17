@@ -21,9 +21,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       upperBound: 60,
       vsync: this,
     );
-
     controller.forward();
-
     controller.addListener(() {
       setState(() {
         values = controller.value;
