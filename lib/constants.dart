@@ -49,6 +49,9 @@ TextStyle KAlertButtonTextStyle = const TextStyle(
 );
 
 AlertStyle KAlertStyle = AlertStyle(
+  alertElevation: 5,
+  alertPadding: const EdgeInsets.all(0),
+  alertAlignment: Alignment.center,
   isCloseButton: false,
   isOverlayTapDismiss: false,
   backgroundColor: const Color(0xff001522),

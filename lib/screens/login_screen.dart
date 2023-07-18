@@ -106,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     // ignore: unnecessary_null_comparison
                     if (user != null) {
                       // ignore: use_build_context_synchronously
-                      Navigator.pushNamed(context, 'chat');
+                      Navigator.pushReplacementNamed(context, 'chat');
                     }
                   } catch (e) {
                     print(e);

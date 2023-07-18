@@ -90,12 +90,19 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: TextFormField(
                     onChanged: (value) {
-                      password = value;
+                      setState(() {
+                        password = value;
+                      });
                     },
                     style: KTextFieldTextStyle,
                     obscureText: hidePassword,
                     decoration: KTextFieldDecoration.copyWith(
                       hintText: 'Create password',
+                      errorText: password.isNotEmpty
+                          ? password.length < 6
+                              ? 'Password must contain atleast 6 characters'
+                              : null
+                          : null,
                       prefixIcon: const Icon(Icons.lock_outline_rounded),
                       suffixIcon: InkWell(
                         child: passwordVisibility,
@@ -114,14 +121,20 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                   child: TextFormField(
                     onChanged: (value) {
-                      confirmPassword = value;
+                      setState(() {
+                        confirmPassword = value;
+                      });
                     },
                     style: KTextFieldTextStyle,
                     obscureText: true,
                     decoration: KTextFieldDecoration.copyWith(
-                      errorStyle: const TextStyle(
-                        fontSize: 20,
-                      ),
+                      errorText:
+                          confirmPassword.isEmpty || confirmPassword.length < 4
+                              ? null
+                              : confirmPassword.isNotEmpty &&
+                                      confirmPassword == password
+                                  ? null
+                                  : 'Password did\'nt matched',
                       hintText: 'Confirm password',
                       prefixIcon: const Icon(Icons.lock),
                     ),
@@ -139,12 +152,12 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                           await _auth.createUserWithEmailAndPassword(
                               email: email, password: password);
                       // ignore: unnecessary_null_comparison
-                      if (newUser != null) {
+                      if (newUser != null && password.length > 5) {
                         // ignore: use_build_context_synchronously
-                        Navigator.pushNamed(context, 'chat');
+                        Navigator.pushReplacementNamed(context, 'chat');
                       }
                     } catch (e) {
-                      print(e);
+                      debugPrint('$e');
                     }
                     setState(() {
                       progress = false;

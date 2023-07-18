@@ -32,12 +32,30 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  double values = 0;
   @override
   void initState() {
-    checkCurrentUser();
     super.initState();
+    AnimationController controller = AnimationController(
+      duration: const Duration(milliseconds: 1000),
+      upperBound: 80,
+      vsync: this,
+    );
+    controller.forward();
+    controller.addListener(() {
+      setState(() {
+        values = controller.value;
+      });
+    });
+    Future.delayed(
+      const Duration(milliseconds: 1500),
+      () {
+        checkCurrentUser();
+      },
+    );
   }
 
   void checkCurrentUser() async {
@@ -54,7 +72,7 @@ class _HomePageState extends State<HomePage> {
     return Center(
       child: Image.asset(
         'assets/images/flash_chat_icon.png',
-        width: 100,
+        width: values,
       ),
     );
   }

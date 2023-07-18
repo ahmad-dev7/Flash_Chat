@@ -35,6 +35,10 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void logoutUser() {
+    Navigator.pushReplacementNamed(context, '/');
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -65,7 +69,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       onPressed: () {
                         setState(() {
                           _auth.signOut();
-                          Navigator.pushReplacementNamed(context, '/');
+                          Navigator.pop(context);
+                          Navigator.pushReplacementNamed(context, 'welcome');
                         });
                       },
                     )
