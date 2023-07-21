@@ -13,6 +13,7 @@ void main() async {
   await Firebase.initializeApp();
   runApp(
     MaterialApp(
+      debugShowCheckedModeBanner: false,
       initialRoute: '/',
       routes: {
         '/': (context) => const HomePage(),

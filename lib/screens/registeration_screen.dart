@@ -154,17 +154,19 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       progress = true;
                     });
                     try {
-                      final newUser = await _auth
-                          .createUserWithEmailAndPassword(
-                              email: email, password: password)
-                          .then((value) => _auth.currentUser);
-                      _auth.currentUser!.updateDisplayName(userName);
-                      // _auth.currentUser!.updatePhotoURL('photoURL');
-                      if (newUser != null &&
-                          password.length >= 6 &&
-                          password == confirmPassword) {
-                        Navigator.pushReplacementNamed(context, 'chat');
+                      if (password.length >= 6 &&
+                          password == confirmPassword &&
+                          userName.isNotEmpty) {
+                        final newUser = await _auth
+                            .createUserWithEmailAndPassword(
+                                email: email, password: password)
+                            .then((value) => _auth.currentUser);
+                        _auth.currentUser!.updateDisplayName(userName);
+                        if (newUser != null) {
+                          Navigator.pushReplacementNamed(context, 'chat');
+                        }
                       }
+                      throw 'Something went wrong';
                     } catch (e) {
                       debugPrint('$e');
                     }

@@ -163,7 +163,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           'Sender': loggedInUser.email,
                           'Time': DateTime.now(),
                           'Name': await _auth.currentUser!.displayName,
-                          "Photo": await _auth.currentUser!.photoURL!.isEmpty
+                          "Photo": await _auth.currentUser!.photoURL == null
                               ? 'null'
                               : _auth.currentUser!.photoURL,
                         });

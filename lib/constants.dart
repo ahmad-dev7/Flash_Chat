@@ -56,7 +56,7 @@ AlertStyle KAlertStyle = AlertStyle(
   isOverlayTapDismiss: false,
   backgroundColor: const Color(0xff001522),
   titleStyle: const TextStyle(color: Colors.blueGrey),
-  descStyle: TextStyle(color: Colors.blue[700]),
+  descStyle: TextStyle(color: Colors.blue[700], height: 1.3),
   animationType: AnimationType.grow,
 );
 

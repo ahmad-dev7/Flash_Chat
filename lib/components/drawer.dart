@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import '../constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class MenuDrawer extends StatefulWidget {
   const MenuDrawer({super.key});
@@ -16,8 +17,16 @@ class MenuDrawer extends StatefulWidget {
 }
 
 class MenuDrawerState extends State<MenuDrawer> {
+  @override
+  void initState() {
+    imageUrl = _auth.currentUser!.photoURL ?? "null";
+    super.initState();
+  }
+
   final _auth = FirebaseAuth.instance;
   String? newName;
+  String? imageUrl;
+  bool progress = false;
 
   Future<void> pickImage() async {
     final image = await ImagePicker().pickImage(
@@ -27,11 +36,18 @@ class MenuDrawerState extends State<MenuDrawer> {
       imageQuality: 75,
     );
     if (image != null) {
+      setState(() {
+        progress = true;
+      });
       Reference reference = FirebaseStorage.instance
           .ref()
           .child('${_auth.currentUser!.uid}profilepic.jpg');
-
       await reference.putFile(File(image.path));
+      imageUrl = await reference.getDownloadURL();
+      setState(() {
+        imageUrl;
+        progress = false;
+      });
       reference.getDownloadURL().then((value) {
         setState(() {
           _auth.currentUser!.updatePhotoURL(value);
@@ -84,12 +100,34 @@ class MenuDrawerState extends State<MenuDrawer> {
                                     color: Colors.white,
                                   )
                                 : ClipOval(
-                                    child: Image(
-                                    image: NetworkImage(
-                                      _auth.currentUser!.photoURL!,
+                                    child: ModalProgressHUD(
+                                      blur: 100,
+                                      progressIndicator:
+                                          const CircularProgressIndicator(
+                                        backgroundColor: Colors.blueGrey,
+                                      ),
+                                      inAsyncCall: progress,
+                                      child: Image(
+                                        image: NetworkImage(
+                                          imageUrl!,
+                                        ),
+                                        fit: BoxFit.cover,
+                                        loadingBuilder:
+                                            (context, child, loadingProgress) {
+                                          if (loadingProgress == null) {
+                                            return child;
+                                          } else {
+                                            return const Center(
+                                              child: CircularProgressIndicator(
+                                                backgroundColor:
+                                                    Colors.blueAccent,
+                                              ),
+                                            );
+                                          }
+                                        },
+                                      ),
                                     ),
-                                    fit: BoxFit.cover,
-                                  )),
+                                  ),
                           ),
                         ),
                       ),
@@ -146,33 +184,31 @@ class MenuDrawerState extends State<MenuDrawer> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  drawerButtons(
-                      text: 'Verify email',
-                      onPressed: () {
-                        if (_auth.currentUser!.emailVerified != true) {
-                          _auth.currentUser!.sendEmailVerification();
-                        }
-                        Alert(
-                          context: context,
-                          style: KAlertStyle,
-                          title: _auth.currentUser!.emailVerified
-                              ? 'Yahoo'
-                              : 'Check your Inbox',
-                          desc: _auth.currentUser!.emailVerified
-                              ? 'Your email has already verified'
-                              : 'We have sent a verification link to your email adress.',
-                          buttons: [
-                            DialogButton(
-                                child: Text(
-                                  'OK',
-                                  style: KAlertButtonTextStyle,
-                                ),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                })
-                          ],
-                        ).show();
-                      }),
+                  if (_auth.currentUser!.emailVerified == false)
+                    drawerButtons(
+                        text: 'Verify email',
+                        onPressed: () {
+                          if (_auth.currentUser!.emailVerified != true) {
+                            _auth.currentUser!.sendEmailVerification();
+                          }
+                          Alert(
+                            context: context,
+                            style: KAlertStyle,
+                            title: 'Check your Inbox',
+                            desc:
+                                'Verify using verification link \nsent toyour email adress.',
+                            buttons: [
+                              DialogButton(
+                                  child: Text(
+                                    'OK',
+                                    style: KAlertButtonTextStyle,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  })
+                            ],
+                          ).show();
+                        }),
                   drawerButtons(
                       text: 'Change user name',
                       onPressed: () {
