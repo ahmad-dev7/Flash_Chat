@@ -1,4 +1,5 @@
 import 'package:flash_chat_app/components/styled_buttons.dart';
+import 'package:flash_chat_app/components/styled_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat_app/constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -54,20 +55,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 25),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: TextFormField(
-                  style: KTextFieldTextStyle,
-                  keyboardType: TextInputType.emailAddress,
-                  onChanged: (value) {
-                    setState(() {
-                      email = value;
-                    });
-                  },
-                  decoration: KTextFieldDecoration.copyWith(
-                      hintText: 'Enter your email',
-                      prefixIcon: const Icon(Icons.email_outlined)),
-                ),
+              StyledTextField(
+                keyboardType: TextInputType.emailAddress,
+                obsecure: false,
+                text: 'Enter your email',
+                icon: const Icon(Icons.email),
+                onChanged: (value) {
+                  setState(() {
+                    email = value;
+                  });
+                },
               ),
               Padding(
                 padding: const EdgeInsets.all(20),
@@ -109,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Navigator.pushReplacementNamed(context, 'chat');
                     }
                   } catch (e) {
-                    print(e);
+                    debugPrint('$e');
                   }
                   setState(() {
                     progress = false;
@@ -122,11 +119,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-}
-
-String? validateEmail(String? formEmail) {
-  if (formEmail != null || formEmail!.endsWith('.com')) {
-    return 'E-mail address is required';
-  }
-  return null;
 }

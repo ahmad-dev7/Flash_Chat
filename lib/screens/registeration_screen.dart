@@ -1,3 +1,6 @@
+// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
+
+import 'package:flash_chat_app/components/styled_text_field.dart';
 import 'package:flutter/material.dart';
 import '../components/styled_buttons.dart';
 import 'package:flash_chat_app/constants.dart';
@@ -21,14 +24,9 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
   String email = '';
   String password = '';
   String confirmPassword = '';
+  String userName = '';
   bool progress = false;
   final _auth = FirebaseAuth.instance;
-
-  // Future<void> registeration() async {
-  //   final auth = FirebaseAuth.instance;
-  //   auth.createUserWithEmailAndPassword(email: email, password: password);
-  // }
-
   void togglePassword() {
     setState(() {
       if (hidePassword == true) {
@@ -70,21 +68,29 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                   ),
                 ),
                 const SizedBox(height: 25),
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: TextFormField(
-                    keyboardType: TextInputType.emailAddress,
-                    onChanged: (value) {
-                      email = value;
-                    },
-                    style: KTextFieldTextStyle,
-                    decoration: KTextFieldDecoration.copyWith(
-                      hintText: 'Enter your email',
-                      prefixIcon: const Icon(Icons.email),
-                    ),
-                  ),
+                StyledTextField(
+                  obsecure: false,
+                  text: 'Enter your name',
+                  icon: const Icon(Icons.person),
+                  onChanged: (value) {
+                    setState(() {
+                      userName = value;
+                    });
+                  },
+                  keyboardType: TextInputType.name,
                 ),
+                StyledTextField(
+                  obsecure: false,
+                  text: 'Enter your email',
+                  icon: const Icon(Icons.email),
+                  onChanged: (value) {
+                    setState(() {
+                      email = value;
+                    });
+                  },
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                const SizedBox(height: 10),
                 Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
@@ -148,12 +154,15 @@ class _RegisterationScreenState extends State<RegisterationScreen> {
                       progress = true;
                     });
                     try {
-                      final newUser =
-                          await _auth.createUserWithEmailAndPassword(
-                              email: email, password: password);
-                      // ignore: unnecessary_null_comparison
-                      if (newUser != null && password.length > 5) {
-                        // ignore: use_build_context_synchronously
+                      final newUser = await _auth
+                          .createUserWithEmailAndPassword(
+                              email: email, password: password)
+                          .then((value) => _auth.currentUser);
+                      _auth.currentUser!.updateDisplayName(userName);
+                      // _auth.currentUser!.updatePhotoURL('photoURL');
+                      if (newUser != null &&
+                          password.length >= 6 &&
+                          password == confirmPassword) {
                         Navigator.pushReplacementNamed(context, 'chat');
                       }
                     } catch (e) {

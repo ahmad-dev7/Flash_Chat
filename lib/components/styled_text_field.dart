@@ -6,10 +6,14 @@ class StyledTextField extends StatelessWidget {
     required this.obsecure,
     required this.text,
     required this.icon,
+    required this.onChanged,
+    required this.keyboardType,
   });
   final bool obsecure;
   final String text;
   final Icon icon;
+  final Function(String) onChanged;
+  final TextInputType? keyboardType;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,9 +22,8 @@ class StyledTextField extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: TextFormField(
-        onChanged: (value) {
-          // ignore: avoid_print
-        },
+        keyboardType: keyboardType,
+        onChanged: onChanged,
         obscureText: obsecure,
         style: const TextStyle(color: Colors.white, decorationThickness: 0),
         decoration: InputDecoration(

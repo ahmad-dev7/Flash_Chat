@@ -62,3 +62,51 @@ AlertStyle KAlertStyle = AlertStyle(
 
 Icon KEyeClose = const Icon(Icons.visibility_off, color: Colors.grey);
 Icon KEyeOpen = const Icon(Icons.remove_red_eye, color: Colors.grey);
+
+Alert KAlertDialogBox({
+  required context,
+  required String titleText,
+  required String descriptionText,
+  required String buttonText,
+  required Function() onPressed,
+  required Color buttonColor,
+}) {
+  return Alert(
+    style: KAlertStyle,
+    context: context,
+    title: titleText,
+    desc: descriptionText,
+    buttons: [
+      DialogButton(
+        color: Colors.blueGrey,
+        child: Text('Cancel', style: KAlertButtonTextStyle),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      ),
+      DialogButton(
+        color: buttonColor,
+        onPressed: onPressed,
+        child: Text(buttonText, style: KAlertButtonTextStyle),
+      )
+    ],
+  );
+}
+
+Container drawerButtons({
+  required String text,
+  required Function() onPressed,
+  Color? color,
+}) {
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 15),
+    width: double.maxFinite,
+    height: 45,
+    child: ElevatedButton(
+      style:
+          ElevatedButton.styleFrom(backgroundColor: color ?? Colors.blueGrey),
+      onPressed: onPressed,
+      child: Text(text),
+    ),
+  );
+}

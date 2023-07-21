@@ -59,7 +59,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 31),
               StyledButtons(
                 text: 'Login',
                 color: const Color(0xff2b5278),

@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage>
       });
     });
     Future.delayed(
-      const Duration(milliseconds: 1500),
+      const Duration(milliseconds: 1001),
       () {
         checkCurrentUser();
       },

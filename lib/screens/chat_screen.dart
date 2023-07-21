@@ -1,8 +1,10 @@
-import 'package:flash_chat_app/constants.dart';
+import 'package:flash_chat_app/components/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
+import 'dart:core';
+import 'package:intl/intl.dart';
+import 'package:flash_chat_app/components/message_bubble.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -15,9 +17,12 @@ class _ChatScreenState extends State<ChatScreen> {
   final messageTextController = TextEditingController();
   final _fireStore = FirebaseFirestore.instance;
   final _auth = FirebaseAuth.instance;
+  final dateFormatter = DateFormat('MMMM d');
+  final timeFormatter = DateFormat('h:mm a');
   late User loggedInUser;
   late String messageText;
   bool hasText = false;
+
   @override
   void initState() {
     getCurrentUser();
@@ -35,54 +40,29 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void logoutUser() {
-    Navigator.pushReplacementNamed(context, '/');
-  }
-
   @override
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color(0xff0e1621),
         appBar: AppBar(
-          automaticallyImplyLeading: false,
-          actions: [
-            IconButton(
-              splashColor: Colors.redAccent,
-              onPressed: () {
-                Alert(
-                  style: KAlertStyle,
-                  context: context,
-                  title: 'Are you sure!',
-                  desc: 'You want to logout?',
-                  buttons: [
-                    DialogButton(
-                      color: Colors.blueGrey,
-                      child: Text('Cancel', style: KAlertButtonTextStyle),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                    DialogButton(
-                      color: Colors.red[700],
-                      child: Text('Logout', style: KAlertButtonTextStyle),
-                      onPressed: () {
-                        setState(() {
-                          _auth.signOut();
-                          Navigator.pop(context);
-                          Navigator.pushReplacementNamed(context, 'welcome');
-                        });
-                      },
-                    )
-                  ],
-                ).show();
-              },
-              icon: const Icon(Icons.logout),
-            )
-          ],
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Image.asset(
+                  'assets/images/flash.png',
+                  width: 20,
+                ),
+              ),
+              const Text(' Flash Chat'),
+              const SizedBox(width: 50)
+            ],
+          ),
+          centerTitle: true,
           backgroundColor: const Color(0xff1f2936),
-          title: const Text('⚡Flash Chat'),
         ),
+        drawer: const MenuDrawer(),
         body: SafeArea(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -99,9 +79,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          CircularProgressIndicator(
-                            backgroundColor: Colors.blueAccent,
-                            semanticsLabel: 'Loading Chats...',
+                          Center(
+                            child: CircularProgressIndicator(
+                              backgroundColor: Colors.blueAccent,
+                            ),
                           ),
                         ],
                       ),
@@ -113,10 +94,22 @@ class _ChatScreenState extends State<ChatScreen> {
                     final messageData = message.data() as Map<String, dynamic>;
                     final messageText = messageData['Text'];
                     final messageSender = messageData['Sender'];
+                    final messageTime = messageData['Time'] as Timestamp;
+                    final senderName = messageData['Name'];
+                    final senderImg = messageData['Photo'];
+                    final datetime = DateTime.fromMillisecondsSinceEpoch(
+                            messageTime.seconds * 1000)
+                        .toLocal();
+                    final formattedDate = dateFormatter.format(datetime);
+                    final formattedTime = timeFormatter.format(datetime);
                     final messageWidget = MessageBubble(
                       message: messageText,
                       sender: messageSender,
                       loggedInUser: loggedInUser.email,
+                      date: formattedDate,
+                      time: formattedTime,
+                      name: senderName,
+                      photo: senderImg,
                     );
                     messageWidgets.add(messageWidget);
                   }
@@ -169,6 +162,10 @@ class _ChatScreenState extends State<ChatScreen> {
                           'Text': messageText,
                           'Sender': loggedInUser.email,
                           'Time': DateTime.now(),
+                          'Name': await _auth.currentUser!.displayName,
+                          "Photo": await _auth.currentUser!.photoURL!.isEmpty
+                              ? 'null'
+                              : _auth.currentUser!.photoURL,
                         });
                       },
                       icon: hasText
@@ -185,52 +182,6 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class MessageBubble extends StatelessWidget {
-  const MessageBubble({
-    super.key,
-    required this.message,
-    required this.sender,
-    required this.loggedInUser,
-  });
-  final String message;
-  final String sender;
-  final String? loggedInUser;
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-      child: Column(
-        crossAxisAlignment: loggedInUser == sender
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
-        children: [
-          if (loggedInUser != sender)
-            Text(
-              sender,
-              style: const TextStyle(color: Colors.grey, fontSize: 14),
-            ),
-          Material(
-            elevation: 10,
-            color: loggedInUser == sender
-                ? const Color.fromARGB(255, 48, 98, 148)
-                : const Color(0xff182533),
-            borderRadius: loggedInUser == sender
-                ? KMessageBorder.copyWith(topLeft: const Radius.circular(50))
-                : KMessageBorder.copyWith(topRight: const Radius.circular(50)),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              child: Text(
-                message,
-                style: const TextStyle(color: Colors.white, fontSize: 16),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

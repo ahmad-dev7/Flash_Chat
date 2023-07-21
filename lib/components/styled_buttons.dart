@@ -16,7 +16,7 @@ class StyledButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(left: 20, right: 20, top: 30),
+      margin: const EdgeInsets.all(20),
       height: 55,
       width: double.maxFinite,
       child: ElevatedButton(
